@@ -120,9 +120,7 @@ module.exports = async function handler(req, res) {
           `Nome: ${name}\nEmail: ${email}\nTelefone: ${phone}`,
         start: { dateTime: startISO, timeZone: TIMEZONE },
         end: { dateTime: endISO, timeZone: TIMEZONE },
-        attendees: [{ email, displayName: name }],
       },
-      sendUpdates: 'none',
     });
 
     return res.status(200).json({ success: true });
