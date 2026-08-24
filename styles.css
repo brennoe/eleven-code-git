@@ -596,6 +596,141 @@ img { max-width: 100%; display: block; }
 }
 .pricing__footnote strong { color: rgba(255,255,255,0.85); }
 
+/* BOOKING */
+.booking {
+  max-width: 760px;
+  margin: 0 auto;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow-md);
+  padding: 40px;
+}
+.booking__days {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 24px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.day-pill {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 66px;
+  padding: 12px 10px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.day-pill__dow {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.day-pill__num { display: block; font-size: 18px; font-weight: 800; color: var(--navy); }
+.day-pill__month { display: block; font-size: 11px; color: var(--text-muted); }
+.day-pill:hover { border-color: var(--green); transform: translateY(-2px); }
+.day-pill.is-active { border-color: var(--green); background: rgba(0,230,118,0.1); }
+.day-pill.is-active .day-pill__num { color: var(--green-dark); }
+
+.booking__slots { min-height: 60px; }
+.booking__hint { font-size: 14px; color: var(--text-muted); text-align: center; padding: 20px 0; }
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+}
+.slot-btn {
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--navy);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease, color .15s ease, transform .15s ease;
+}
+.slot-btn:hover { border-color: var(--green); transform: translateY(-2px); }
+.slot-btn.is-selected { background: var(--green); border-color: var(--green); color: var(--navy); }
+
+.booking__form { display: grid; gap: 18px; }
+.booking__form[hidden],
+.booking__panel[hidden],
+.booking__success[hidden] { display: none; }
+.booking__back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--green-dark);
+  font-weight: 700;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+.booking__summary {
+  background: var(--gray-light);
+  border-radius: 14px;
+  padding: 16px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.field { display: grid; gap: 6px; }
+.field label { font-size: 14px; font-weight: 700; color: var(--navy); }
+.field input {
+  font-family: inherit;
+  font-size: 15px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--text);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.field input:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 4px rgba(0,230,118,0.15);
+}
+.field__hint { font-size: 12.5px; color: var(--text-muted); }
+.booking__error {
+  background: rgba(220,38,38,0.08);
+  color: #B91C1C;
+  border: 1px solid rgba(220,38,38,0.25);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.booking__success { text-align: center; padding: 20px 0; }
+.booking__success-icon {
+  width: 64px; height: 64px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: var(--green);
+  color: var(--navy);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+  font-weight: 800;
+}
+.booking__success h3 { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+.booking__success p { color: var(--text-muted); font-size: 15px; }
+.booking__success-note { margin-top: 6px; }
+
 /* ACCORDION */
 .accordion { max-width: 720px; margin: 0 auto; display: grid; gap: 12px; }
 .accordion__item {
@@ -712,5 +847,6 @@ img { max-width: 100%; display: block; }
   .hero__grid { background-size: 40px 40px; }
   .pricing { padding: 44px 26px 36px; }
   .pricing__amount { font-size: 52px; }
+  .booking { padding: 26px 18px; border-radius: 20px; }
   body { padding-bottom: var(--mobile-bar-h); }
 }

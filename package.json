@@ -1,0 +1,11 @@
+{
+  "name": "eleven-code-site",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "googleapis": "^144.0.0"
+  }
+}

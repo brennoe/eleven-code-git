@@ -25,6 +25,7 @@
     <nav class="header__nav" aria-label="Navegação principal">
       <a href="#servicos">Serviços</a>
       <a href="#como-funciona">Como Funciona</a>
+      <a href="#marcar">Marcar Call</a>
       <a href="#faq">FAQ</a>
     </nav>
 
@@ -42,6 +43,7 @@
   <div class="mobile-menu" id="mobileMenu">
     <a href="#servicos">Serviços</a>
     <a href="#como-funciona">Como Funciona</a>
+    <a href="#marcar">Marcar Call</a>
     <a href="#faq">FAQ</a>
     <a class="btn btn--primary" href="https://wa.me/351925177020?text=Ol%C3%A1!%20Vi%20o%20site%20da%20Eleven%20Code%20e%20gostaria%20de%20saber%20mais%20sobre%20a%20landing%20page%20de%20487%E2%82%AC." target="_blank" rel="noopener">Falar no WhatsApp</a>
   </div>
@@ -200,6 +202,59 @@
 
       <div class="section__cta reveal">
         <a href="https://wa.me/351925177020?text=Ol%C3%A1!%20Vi%20o%20site%20da%20Eleven%20Code%20e%20gostaria%20de%20saber%20mais%20sobre%20a%20landing%20page%20de%20487%E2%82%AC." target="_blank" rel="noopener" class="btn btn--primary">Falar com a Eleven Code</a>
+        <a href="#marcar" class="btn btn--outline">Marcar uma call</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARCAR CALL -->
+  <section class="section section--tint" id="marcar">
+    <div class="container">
+      <div class="section__head reveal">
+        <span class="eyebrow eyebrow--dark">AGENDAR</span>
+        <h2>Marque uma call de 45 minutos.</h2>
+        <p>Escolha o dia e o horário que melhor lhe convém. Confirmação instantânea, sem trocas de mensagens.</p>
+      </div>
+
+      <div class="booking reveal" id="booking">
+        <div class="booking__panel" id="bookingStep1">
+          <div class="booking__days" id="bookingDays" role="tablist" aria-label="Escolha o dia"></div>
+
+          <div class="booking__slots" id="bookingSlots">
+            <p class="booking__hint">A carregar horários…</p>
+          </div>
+        </div>
+
+        <form class="booking__form" id="bookingForm" novalidate hidden>
+          <button type="button" class="booking__back" id="bookingBack">&larr; Escolher outro horário</button>
+
+          <div class="booking__summary" id="bookingSummary"></div>
+
+          <div class="field">
+            <label for="bkName">Nome</label>
+            <input type="text" id="bkName" name="name" required autocomplete="name" placeholder="O seu nome">
+          </div>
+          <div class="field">
+            <label for="bkEmail">Email</label>
+            <input type="email" id="bkEmail" name="email" required autocomplete="email" placeholder="nome@empresa.com">
+          </div>
+          <div class="field">
+            <label for="bkPhone">Telefone</label>
+            <input type="tel" id="bkPhone" name="phone" required autocomplete="tel" placeholder="+351 912 345 678">
+            <span class="field__hint">Inclua o indicativo do país (ex: +351, +55, +34).</span>
+          </div>
+
+          <p class="booking__error" id="bookingError" hidden></p>
+
+          <button type="submit" class="btn btn--primary btn--lg btn--block" id="bookingSubmit">Confirmar marcação</button>
+        </form>
+
+        <div class="booking__success" id="bookingSuccess" hidden>
+          <div class="booking__success-icon">✓</div>
+          <h3>Marcação confirmada!</h3>
+          <p id="bookingSuccessText"></p>
+          <p class="booking__success-note">Vamos falar consigo à hora marcada. Até já!</p>
+        </div>
       </div>
     </div>
   </section>
