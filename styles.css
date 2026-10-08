@@ -872,7 +872,8 @@ em { font-style: normal; }
 @media (max-width: 760px) {
   .bubble { font-size: 11.5px; padding: 6px 11px 6px 6px; }
   .bubble .ch { width: 18px; height: 18px; }
-  .lbl { font-size: 9.5px; letter-spacing: .12em; }
+  .lbl { font-size: 8.5px; letter-spacing: .1em; height: 19px; padding: 0 8px 0 6px; }
+  .lbl::before { width: 5px; height: 5px; }
   .intro__hud { top: 18px; left: 18px; font-size: 10px; }
   .intro__progress { left: 18px; right: 18px; }
   .intro__skip { right: 18px; bottom: 34px; }

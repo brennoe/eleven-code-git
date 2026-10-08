@@ -65,7 +65,7 @@
     var H = window.innerHeight;
     if (isPortrait()) {
       return phase === 'intro'
-        ? { sceneRot: 0, angle: 0, camZ: 96, shiftX: 0, shiftY: -H * 0.04, dim: 1 }
+        ? { sceneRot: 0, angle: 0, camZ: 108, shiftX: 0, shiftY: H * 0.12, dim: 1 }
         : { sceneRot: 0, angle: 0, camZ: 104, shiftX: 0, shiftY: H * 0.5 - Math.max(130, H * 0.17), dim: 0.95 };
     }
     if (phase === 'intro') return { sceneRot: 0, angle: 0, camZ: 54, shiftX: 0, shiftY: -H * 0.06, dim: 1 };
@@ -111,7 +111,7 @@
     var wrap = $('#labels');
     if (!sceneOk || !wrap) return [];
     var anchors = sceneApi.anchors.labels;
-    var count = isPortrait() ? 6 : AREAS.length;
+    var count = isPortrait() ? 3 : AREAS.length;
     wrap.innerHTML = '';
     labelEls = [];
     for (var i = 0; i < count && i < anchors.length; i++) {
@@ -130,7 +130,7 @@
     if (!sceneOk || !wrap) return [];
     // as conversas partem dos dedos da mão humana (e não do punho)
     var threads = sceneApi.anchors.threads.slice().sort(function (p, q) { return q[0].local[0] - p[0].local[0]; });
-    var count = isPortrait() ? 3 : MESSAGES.length;
+    var count = isPortrait() ? 2 : MESSAGES.length;
     wrap.innerHTML = '';
     bubbleEls = [];
     bubbleState = [];
@@ -152,7 +152,10 @@
       if (rippleEl) { rippleEl.style.left = c.x + 'px'; rippleEl.style.top = c.y + 'px'; }
       for (var i = 0; i < labelEls.length; i++) {
         var p = sceneApi.screenOf(labelEls[i].__anchor);
-        labelEls[i].style.transform = 'translate3d(' + (p.x - 11).toFixed(1) + 'px,' + (p.y - 11).toFixed(1) + 'px,0)';
+        // nunca deixar a etiqueta sair do ecrã
+        var lx = Math.max(8, Math.min(window.innerWidth - labelEls[i].offsetWidth - 8, p.x - 11));
+        var ly = Math.max(56, Math.min(window.innerHeight - 140, p.y - 11));
+        labelEls[i].style.transform = 'translate3d(' + lx.toFixed(1) + 'px,' + ly.toFixed(1) + 'px,0)';
       }
       for (var j = 0; j < bubbleEls.length; j++) {
         var st = bubbleState[j];
@@ -162,6 +165,8 @@
         var k = st.t * st.t * (3 - 2 * st.t);
         var x = a.x + (b.x - a.x) * k;
         var y = a.y + (b.y - a.y) * k - Math.sin(k * Math.PI) * 26;
+        var half = bubbleEls[j].offsetWidth / 2 + 8;
+        x = Math.max(half, Math.min(window.innerWidth - half, x));
         bubbleEls[j].style.opacity = st.o;
         bubbleEls[j].style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) translate(-50%,-50%) scale(' + (0.86 + 0.14 * Math.sin(k * Math.PI)).toFixed(3) + ')';
       }
