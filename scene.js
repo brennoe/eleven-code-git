@@ -50,7 +50,78 @@
      Mão direita a apontar (unidades ≈ cm).
      x: para os dedos · y: dorso · z: lado do polegar.
      Pulso na origem; ponta do indicador em INDEX_TIP. */
-  var INDEX_TIP = v3(18.3, 0.0, 2.95);
+  /* Esqueleto (pose inspirada na Criação de Adão): indicador estendido,
+     restantes dedos relaxados e afastados, polegar aberto e visível. */
+  function fingerChain(mcp, yawDeg, lengths, flexDeg, radii) {
+    var pts = [mcp];
+    var phi = 0;
+    var yaw = yawDeg * DEG;
+    var cur = mcp;
+    for (var i = 0; i < lengths.length; i++) {
+      phi += flexDeg[i] * DEG;
+      var d = [Math.cos(phi) * Math.cos(yaw), -Math.sin(phi), Math.cos(phi) * Math.sin(yaw)];
+      cur = add(cur, mul(d, lengths[i]));
+      pts.push(cur);
+    }
+    var last = sub(pts[pts.length - 1], pts[pts.length - 2]);
+    return { pts: pts, radii: radii, tip: add(pts[pts.length - 1], mul(norm(last), radii[radii.length - 1])) };
+  }
+
+  // Duas poses diferentes, como no fresco: a mão humana chega relaxada (Adão),
+  // a mão digital chega firme e decidida.
+  var SK_HUMAN = {
+    index: fingerChain(v3(9.4, 0.3, 2.5), 4, [4.2, 2.5, 1.9], [7, 11, 12], [0.95, 0.84, 0.75, 0.68]),
+    middle: fingerChain(v3(9.8, 0.35, 0.75), 2, [4.6, 2.9, 2.0], [16, 26, 18], [0.98, 0.86, 0.77, 0.7]),
+    ring: fingerChain(v3(9.35, 0.25, -1.1), -7, [4.3, 2.7, 1.9], [22, 32, 20], [0.92, 0.82, 0.74, 0.66]),
+    pinky: fingerChain(v3(8.5, 0.0, -2.8), -16, [3.4, 2.1, 1.7], [28, 34, 20], [0.8, 0.72, 0.64, 0.58]),
+    thumb: { pts: [v3(2.4, -0.8, 2.8), v3(5.3, -1.3, 4.9), v3(7.6, -1.6, 5.9), v3(9.4, -1.7, 6.3)], radii: [1.3, 1.05, 0.95, 0.85] }
+  };
+  var SK_DIGITAL = {
+    index: fingerChain(v3(9.4, 0.3, 2.5), 3, [4.3, 2.6, 1.9], [0, 2, 3], [0.95, 0.84, 0.75, 0.68]),
+    middle: fingerChain(v3(9.8, 0.35, 0.75), 0, [4.6, 2.9, 2.0], [40, 62, 34], [0.98, 0.86, 0.77, 0.7]),
+    ring: fingerChain(v3(9.35, 0.25, -1.1), -4, [4.3, 2.7, 1.9], [46, 64, 34], [0.92, 0.82, 0.74, 0.66]),
+    pinky: fingerChain(v3(8.5, 0.0, -2.8), -9, [3.4, 2.1, 1.7], [52, 62, 32], [0.8, 0.72, 0.64, 0.58]),
+    thumb: { pts: [v3(2.4, -0.8, 2.5), v3(5.6, -1.6, 3.7), v3(8.0, -2.2, 3.3), v3(9.7, -2.6, 2.6)], radii: [1.3, 1.05, 0.95, 0.85] }
+  };
+  var TIP_HUMAN = SK_HUMAN.index.tip;
+  var TIP_DIGITAL = SK_DIGITAL.index.tip;
+
+  // Orientação de cada mão: ângulo de chegada, rotação sobre o próprio eixo e queda do pulso.
+  var POSE = {
+    human: { angle: -12, roll: 30, bend: -8 },
+    digital: { angle: 10, roll: -58, bend: 5 }
+  };
+
+  // Altura do dorso da mão (para desenhar os tendões à superfície).
+  function dorsalY(x, z) {
+    function top(c, ax) {
+      var k = 1 - Math.pow((x - c[0]) / ax[0], 2) - Math.pow((z - c[2]) / ax[2], 2);
+      return k > 0 ? c[1] + ax[1] * Math.sqrt(k) : -9;
+    }
+    return Math.max(top([4.9, 0.05, 0.25], [5.4, 1.55, 4.15]), top([-1.0, 0.0, 0.1], [2.3, 1.8, 2.85])) + 0.08;
+  }
+
+  // Linhas anatómicas: tendões no dorso (dos nós dos dedos ao pulso) e "ossos" dos dedos.
+  function anatomyLines(sk) {
+    var tendons = [];
+    ['index', 'middle', 'ring', 'pinky'].forEach(function (name) {
+      var m = sk[name].pts[0];
+      var line = [];
+      for (var i = 0; i <= 8; i++) {
+        var t = i / 8;
+        var x = m[0] + (0.2 - m[0]) * t;
+        var z = m[2] + (m[2] * 0.35 - m[2]) * t;
+        line.push([x, dorsalY(x, z), z]);
+      }
+      tendons.push(line);
+    });
+    var bones = [];
+    ['index', 'middle', 'ring', 'pinky', 'thumb'].forEach(function (name) {
+      var f = sk[name];
+      bones.push(f.pts.map(function (q, i) { return [q[0], q[1] + f.radii[i] * 0.92, q[2]]; }));
+    });
+    return { tendons: tendons, bones: bones };
+  }
 
   // Perfil do antebraço [x, centro y, raio y (espessura), raio z (largura)], do cotovelo ao pulso.
   var FOREARM = [
@@ -79,7 +150,7 @@
     return out;
   }
 
-  function handPrimitives() {
+  function handPrimitives(sk) {
     var prims = [];
     function cap(a, b, ra, rb) { prims.push({ t: 0, a: a, b: b, ra: ra, rb: rb }); }
     function sph(c, r) { prims.push({ t: 1, c: c, r: r }); }
@@ -90,21 +161,25 @@
     }
 
     // antebraço: um volume contínuo e musculado (secção elíptica, mais largo do que espesso)
-    prims.push({ t: 3, x0: -26, x1: -0.6, profile: FOREARM });
+    prims.push({ t: 3, x0: -26, x1: -0.6, profile: FOREARM, w: 0.75 });
     // pulso
     ell(v3(-1.0, 0.0, 0.1), v3(2.3, 1.8, 2.85));
     // palma, eminência tenar e hipotenar
     ell(v3(4.9, 0.05, 0.25), v3(5.4, 1.55, 4.15));
     ell(v3(3.3, -1.0, 2.7), v3(3.1, 1.45, 1.55));
     ell(v3(4.6, -0.85, -2.55), v3(3.7, 1.2, 1.25));
-    // indicador estendido (ligeiramente descaído, como no fresco)
-    finger([v3(9.4, 0.35, 2.55), v3(13.5, 0.45, 2.85), v3(15.8, 0.22, 2.95), v3(17.6, -0.08, 2.95)], [1.0, 0.86, 0.76, 0.68]);
-    // médio, anelar e mínimo dobrados
-    finger([v3(9.8, 0.35, 0.8), v3(11.3, -3.78, 0.85), v3(8.61, -4.02, 0.9), v3(7.52, -2.46, 0.9)], [1.0, 0.9, 0.8, 0.72]);
-    finger([v3(9.4, 0.25, -1.0), v3(10.46, -3.71, -1.05), v3(7.96, -3.71, -1.1), v3(7.06, -2.15, -1.1)], [0.95, 0.86, 0.76, 0.68]);
-    finger([v3(8.6, 0.0, -2.7), v3(9.16, -3.15, -2.75), v3(7.17, -2.98, -2.8), v3(6.49, -1.53, -2.8)], [0.85, 0.76, 0.68, 0.6]);
-    // polegar
-    finger([v3(2.2, -0.9, 2.7), v3(5.6, -1.7, 4.0), v3(8.3, -2.3, 3.7), v3(10.1, -2.8, 3.1)], [1.35, 1.05, 0.95, 0.82]);
+    // nós dos dedos
+    ['index', 'middle', 'ring', 'pinky'].forEach(function (name) {
+      var m = sk[name].pts[0];
+      sph(v3(m[0] - 0.1, m[1] + 0.45, m[2]), sk[name].radii[0] * 0.66);
+      prims[prims.length - 1].w = 2.2;
+    });
+    // dedos (com mais densidade de pontos para se lerem bem)
+    ['index', 'middle', 'ring', 'pinky', 'thumb'].forEach(function (name) {
+      var start = prims.length;
+      finger(sk[name].pts, sk[name].radii);
+      for (var k = start; k < prims.length; k++) prims[k].w = name === 'thumb' ? 2.0 : 2.5;
+    });
     return prims;
   }
 
@@ -179,10 +254,10 @@
   }
 
   // Pontos na pele da mão (união das primitivas, sem pontos interiores).
-  function sampleHand(count, rand) {
-    var prims = handPrimitives();
+  function sampleHand(count, rand, sk) {
+    var prims = handPrimitives(sk);
     var total = 0;
-    prims.forEach(function (p) { p.area = primArea(p); total += p.area; });
+    prims.forEach(function (p) { p.area = primArea(p) * (p.w || 1.2); total += p.area; });
     var pts = [];
     var target = count * 1.8;
     prims.forEach(function (p, i) {
@@ -308,17 +383,17 @@
     '  vec3 ink = vec3(0.07, 0.08, 0.085);',
     '  vec3 cL = ink; float aL;',
     '  bool bead = node && pick > 0.68;',
-    '  if (human && aKind < 0.5) aL = 0.04 + 0.94 * pow(1.0 - diff, 2.2) + rim * 0.3;',
+    '  if (human && aKind < 0.5) aL = 0.04 + 0.85 * pow(1.0 - diff, 2.2) + rim * 0.62;',
     '  else if (node) { aL = 0.9; if (bead) cL = vec3(0.99); else if (pick < 0.07) cL = vec3(0.0, 0.62, 0.38); }',
-    '  else if (aKind < 0.5) aL = 0.34 + rim * 0.4;',
+    '  else if (aKind < 0.5) aL = 0.26 + rim * 0.7;',
     '  else aL = 0.42;',
     '',
     '  vec3 silver = vec3(0.86, 0.9, 0.89);',
     '  vec3 green = vec3(0.0, 0.9, 0.46);',
     '  vec3 cD = mix(silver, green, rim * 0.35); float aD;',
-    '  if (human && aKind < 0.5) aD = 0.05 + 0.62 * pow(diff, 1.4) + rim * 0.5;',
+    '  if (human && aKind < 0.5) aD = 0.05 + 0.6 * pow(diff, 1.4) + rim * 0.7;',
     '  else if (node) { aD = 0.92; cD = pick > 0.88 ? green : silver; }',
-    '  else if (aKind < 0.5) aD = 0.22 + rim * 0.35;',
+    '  else if (aKind < 0.5) aD = 0.18 + rim * 0.6;',
     '  else aD = 0.32;',
     '',
     '  float inE = energyIn(w);',
@@ -368,9 +443,11 @@
     '  gl_Position = vec4(sp / (uRes * 0.5), 0.0, 1.0);',
     '  vec2 scr = sp + uRes * 0.5;',
     '  bool thread = aKind > 0.5;',
-    '  bool far = aKind > 1.5;',
-    '  float aL = far ? 0.15 : (thread ? 0.27 : 0.36);',
-    '  float aD = far ? 0.07 : (thread ? 0.13 : 0.18);',
+    '  bool anat = aKind > 2.5;',
+    '  bool far = aKind > 1.5 && !anat;',
+    'thread = thread && !anat;',
+    '  float aL = anat ? 0.62 : (far ? 0.15 : (thread ? 0.27 : 0.3));',
+    '  float aD = anat ? 0.4 : (far ? 0.07 : (thread ? 0.13 : 0.15));',
     '  vec3 cL = vec3(0.08, 0.09, 0.1);',
     '  vec3 cD = vec3(0.84, 0.9, 0.89);',
     '  float inE = energyIn(w);',
@@ -439,7 +516,7 @@
   /* ---------------- cena ---------------- */
   var S = {
     form0: 1, form1: 1,
-    gap: 0.35,
+    gap: 0,
     angle: 16,
     roll0: -28, roll1: -28,
     sceneRot: 0,
@@ -464,15 +541,15 @@
   function buildModel(small) {
     var rand = mulberry32(1107);
     var counts = small
-      ? { human: 6000, digital: 1300, dNodes: 175, hNodes: 60, dissolve: 520, dust: 260, links: 2, far: 8, threads: 9 }
-      : { human: 13500, digital: 2600, dNodes: 320, hNodes: 110, dissolve: 1100, dust: 520, links: 3, far: 14, threads: 16 };
+      ? { human: 6000, digital: 2300, dNodes: 110, hNodes: 60, dissolve: 520, dust: 260, links: 2, far: 8, threads: 9 }
+      : { human: 13500, digital: 5200, dNodes: 190, hNodes: 110, dissolve: 1100, dust: 520, links: 2, far: 14, threads: 16 };
 
     // O antebraço humano vai-se desfazendo: menos pele à medida que se afasta da mão.
-    var human = sampleHand(Math.round(counts.human * 1.25), rand).filter(function (s) {
+    var human = sampleHand(Math.round(counts.human * 1.25), rand, SK_HUMAN).filter(function (s) {
       if (s.p[0] > -15) return true;
       return rand() < Math.max(0.1, 1 - (-15 - s.p[0]) / 10);
     }).slice(0, counts.human);
-    var digital = sampleHand(counts.digital + counts.dNodes * 6, rand);
+    var digital = sampleHand(counts.digital + counts.dNodes * 6, rand, SK_DIGITAL);
     var dNodeIdx = pickNodes(digital, counts.dNodes, small ? 1.3 : 1.05, rand);
     var hNodeIdx = pickNodes(human, counts.hNodes, 1.4, rand, function (p) { return p[0] < -15 || rand() < 0.16; });
 
@@ -522,6 +599,21 @@
     linkNodes(dPts, dPts.map(function (_, i) { return i; }), small ? 2.7 : 2.4, counts.links).forEach(function (pr) {
       link(nodeRefs.d[pr[0]], nodeRefs.d[pr[1]], 0);
     });
+    // anatomia em linhas: tendões nas duas mãos; ossos e articulações na mão digital
+    var anatH = anatomyLines(SK_HUMAN);
+    var anatD = anatomyLines(SK_DIGITAL);
+    function polyline(list, hand, withNodes) {
+      var prev = null;
+      list.forEach(function (q) {
+        var rec = withNodes ? push(q, [0, 1, 0], hand, 1) : { local: q, start: start(), seed: rand(), hand: hand };
+        if (prev) link(prev, rec, 3);
+        prev = rec;
+      });
+    }
+    anatH.tendons.forEach(function (l) { polyline(l, 0, false); });
+    anatD.tendons.forEach(function (l) { polyline(l, 1, true); });
+    anatD.bones.forEach(function (l) { polyline(l, 1, true); });
+
     var hPts = nodeRefs.h.map(function (r) { return { p: r.local }; });
     linkNodes(hPts, hPts.map(function (_, i) { return i; }), 3.2, 2).forEach(function (pr) {
       link(nodeRefs.h[pr[0]], nodeRefs.h[pr[1]], 0);
@@ -550,7 +642,7 @@
     }
 
     // âncoras para etiquetas (áreas de trabalho) e para as mensagens
-    var labelX = [17.4, 12.0, 6.8, 1.8, -3.4, -8.6, -13.8];
+    var labelX = [12.5, 8.5, 4.5, 0.5, -4.5, -9.5, -14.5];
     var labels = labelX.map(function (lx, i) {
       var best = null, bestScore = 1e9;
       nodeRefs.d.forEach(function (r) {
@@ -616,16 +708,18 @@
     var a = S.angle * DEG;
     var dir = [Math.cos(a), Math.sin(a), 0];
     var bob = S.float * Math.sin(time * 0.55) * 0.22;
-    var breath = S.float * Math.sin(time * 0.9) * 0.08;
-    var gap = S.gap + breath;
+    var gap = S.gap;
 
-    var R0 = mm(rz(a), rx(S.roll0 * DEG));
-    var R1 = mm(rz(a), mm(MIRROR_X, rx(S.roll1 * DEG)));
-    var tip0 = mv(R0, INDEX_TIP);
-    var tip1 = mv(R1, INDEX_TIP);
+    // Cada braço chega com o seu ângulo; só as pontas dos indicadores se encontram.
+    var a0 = a + POSE.human.angle * DEG;
+    var a1 = a + POSE.digital.angle * DEG;
+    var R0 = mm(rz(a0), mm(rx(POSE.human.roll * DEG), rz(POSE.human.bend * DEG)));
+    var R1 = mm(rz(a1), mm(MIRROR_X, mm(rx(POSE.digital.roll * DEG), rz(POSE.digital.bend * DEG))));
+    var tip0 = mv(R0, TIP_HUMAN);
+    var tip1 = mv(R1, TIP_DIGITAL);
     var P0 = sub(mul(dir, -gap / 2), tip0);
     var P1 = sub(mul(dir, gap / 2), tip1);
-    P0[1] += bob; P1[1] -= bob;
+    P0[1] += bob; P1[1] += bob;
 
     mouse.x += (mouse.tx - mouse.x) * 0.05;
     mouse.y += (mouse.ty - mouse.y) * 0.05;

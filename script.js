@@ -77,12 +77,12 @@
       var r = cardEl.getBoundingClientRect();
       var gap = parseFloat(window.getComputedStyle(cardEl.parentNode).columnGap) || 96;
       cx = r.left - gap * 0.85;
-      cy = r.top + r.height * 0.6;
+      cy = r.top + r.height * 0.7;
     }
-    return { sceneRot: 0, angle: 31, camZ: 68, shiftX: cx - W / 2, shiftY: H / 2 - cy, dim: 0.88 };
+    return { sceneRot: 0, angle: 46, camZ: 70, shiftX: cx - W / 2, shiftY: H / 2 - cy, dim: 0.88 };
   }
 
-  var FINAL = { form0: 1, form1: 1, gap: 0.32, energy: 100, reveal: 1e5, ring: 0, glow: 1, threads: 1, dust: 1 };
+  var FINAL = { form0: 1, form1: 1, gap: 0, energy: 100, reveal: 1e5, ring: 0, glow: 1, threads: 1, dust: 1 };
 
   function settleScene() {
     if (!sceneOk) return;
@@ -669,7 +669,7 @@
       .add(headIn(heads[1]), 2.7)
       .to(S, { threads: 1, duration: 1.2, ease: 'power1.inOut' }, 2.3)
       .fromTo(labels, { opacity: 0 }, { opacity: 1, duration: 0.5, stagger: 0.09 }, 2.7)
-      .to(S, { gap: 0.32, duration: 2.3, ease: 'power2.inOut' }, 2.6)
+      .to(S, { gap: 0, duration: 2.3, ease: 'power2.inOut' }, 2.6)
       .to(S, { camZ: fI.camZ - 7, duration: 3.2, ease: 'power1.inOut' }, 2.2);
     bubbleState.forEach(function (st, i) {
       var t0 = 2.9 + i * 0.3;
