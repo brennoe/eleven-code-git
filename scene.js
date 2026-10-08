@@ -88,8 +88,8 @@
 
   // Orientação de cada mão: ângulo de chegada, rotação sobre o próprio eixo e queda do pulso.
   var POSE = {
-    human: { angle: -12, roll: 30, bend: -8 },
-    digital: { angle: 10, roll: -58, bend: 5 }
+    human: { angle: 17, roll: 30, bend: -8 },
+    digital: { angle: -2, roll: -40, bend: 3 }
   };
 
   // Altura do dorso da mão (para desenhar os tendões à superfície).

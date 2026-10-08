@@ -65,10 +65,10 @@
     var H = window.innerHeight;
     if (isPortrait()) {
       return phase === 'intro'
-        ? { sceneRot: 62, angle: 20, camZ: 76, shiftX: 0, shiftY: H * 0.13, dim: 1 }
-        : { sceneRot: 0, angle: 9, camZ: 104, shiftX: 0, shiftY: H * 0.5 - Math.max(130, H * 0.17), dim: 0.95 };
+        ? { sceneRot: 0, angle: 0, camZ: 96, shiftX: 0, shiftY: -H * 0.04, dim: 1 }
+        : { sceneRot: 0, angle: 0, camZ: 104, shiftX: 0, shiftY: H * 0.5 - Math.max(130, H * 0.17), dim: 0.95 };
     }
-    if (phase === 'intro') return { sceneRot: 0, angle: 22, camZ: 52, shiftX: 0, shiftY: H * 0.04, dim: 1 };
+    if (phase === 'intro') return { sceneRot: 0, angle: 0, camZ: 54, shiftX: 0, shiftY: -H * 0.06, dim: 1 };
 
     var cx = W * 0.54;
     var cy = H * 0.5;
@@ -77,9 +77,9 @@
       var r = cardEl.getBoundingClientRect();
       var gap = parseFloat(window.getComputedStyle(cardEl.parentNode).columnGap) || 96;
       cx = r.left - gap * 0.85;
-      cy = r.top + r.height * 0.7;
+      cy = Math.min(H * 0.86, r.top + r.height + 40);
     }
-    return { sceneRot: 0, angle: 46, camZ: 70, shiftX: cx - W / 2, shiftY: H / 2 - cy, dim: 0.88 };
+    return { sceneRot: 0, angle: 0, camZ: 70, shiftX: cx - W / 2, shiftY: H / 2 - cy, dim: 0.88 };
   }
 
   var FINAL = { form0: 1, form1: 1, gap: 0, energy: 100, reveal: 1e5, ring: 0, glow: 1, threads: 1, dust: 1 };
