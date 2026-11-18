@@ -49,13 +49,25 @@ function readJsonBody(req) {
 }
 
 function hasStore() {
-  return !!process.env.BLOB_READ_WRITE_TOKEN;
+  return !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
 }
 
-async function takenTimes(dateStr) {
+// O Blob aceita um token fixo ou, como aqui, o token OIDC do próprio pedido.
+function blobAuth(req) {
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    return { token: process.env.BLOB_READ_WRITE_TOKEN };
+  }
+  const auth = {};
+  const oidc = (req && req.headers && req.headers['x-vercel-oidc-token']) || process.env.VERCEL_OIDC_TOKEN;
+  if (oidc) auth.oidcToken = oidc;
+  if (process.env.BLOB_STORE_ID) auth.storeId = process.env.BLOB_STORE_ID;
+  return auth;
+}
+
+async function takenTimes(dateStr, req) {
   if (!hasStore()) return [];
   const { list } = require('@vercel/blob');
-  const result = await list({ prefix: PREFIX + dateStr + 'T', limit: 100 });
+  const result = await list(Object.assign({ prefix: PREFIX + dateStr + 'T', limit: 100 }, blobAuth(req)));
   return (result.blobs || []).map((b) => {
     const match = b.pathname.match(/T(\d{2})-(\d{2})\.json$/);
     return match ? match[1] + ':' + match[2] : null;
@@ -85,9 +97,11 @@ async function handleGet(req, res) {
   if (!isDateBookable(parsed)) return res.status(200).json({ date: dateParam, slots: [] });
 
   let taken = [];
+  let shared = hasStore();
   try {
-    taken = await takenTimes(dateParam);
+    taken = await takenTimes(dateParam, req);
   } catch (err) {
+    shared = false;
     console.error('ab-slots list error:', err.message);
   }
 
@@ -96,7 +110,7 @@ async function handleGet(req, res) {
     .filter((t) => taken.indexOf(t) === -1 && afterCutoff(t, cutoff))
     .map((t) => ({ start: t }));
 
-  return res.status(200).json({ date: dateParam, slots });
+  return res.status(200).json({ date: dateParam, slots, shared });
 }
 
 async function handlePost(req, res) {
@@ -126,12 +140,11 @@ async function handlePost(req, res) {
   try {
     const { put } = require('@vercel/blob');
     // Sem allowOverwrite: se a chave já existir, o horário está tomado.
-    await put(blobKey(date, time), JSON.stringify({ reservedAt: new Date().toISOString() }), {
-      access: 'public',
+    await put(blobKey(date, time), JSON.stringify({ reservedAt: new Date().toISOString() }), Object.assign({
+      access: 'private',
       addRandomSuffix: false,
       contentType: 'application/json',
-      cacheControlMaxAge: 0,
-    });
+    }, blobAuth(req)));
     return res.status(200).json({ ok: true, shared: true });
   } catch (err) {
     const label = String((err && (err.name || err.message)) || '');

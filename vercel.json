@@ -1,0 +1,5 @@
+{
+  "redirects": [
+    { "source": "/ab", "destination": "/heber", "permanent": false }
+  ]
+}
