@@ -137,21 +137,33 @@ async function handlePost(req, res) {
   // só vale no dispositivo de quem marcou.
   if (!hasStore()) return res.status(200).json({ ok: true, shared: false });
 
+  const { head, put } = require('@vercel/blob');
+  const key = blobKey(date, time);
+  const auth = blobAuth(req);
+
+  const exists = async () => {
+    try {
+      await head(key, auth);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+
+  if (await exists()) return res.status(409).json({ error: 'slot_taken' });
+
   try {
-    const { put } = require('@vercel/blob');
-    // Sem allowOverwrite: se a chave já existir, o horário está tomado.
-    await put(blobKey(date, time), JSON.stringify({ reservedAt: new Date().toISOString() }), Object.assign({
+    // Sem allowOverwrite: o Blob recusa escrever por cima de uma reserva.
+    await put(key, JSON.stringify({ reservedAt: new Date().toISOString() }), Object.assign({
       access: 'private',
       addRandomSuffix: false,
       contentType: 'application/json',
-    }, blobAuth(req)));
+    }, auth));
     return res.status(200).json({ ok: true, shared: true });
   } catch (err) {
-    const label = String((err && (err.name || err.message)) || '');
-    if (/already exists/i.test(label) || /BlobAlreadyExists/i.test(label)) {
-      return res.status(409).json({ error: 'slot_taken' });
-    }
     console.error('ab-slots put error:', err.message);
+    // Falhou porque entretanto alguém reservou? Confirma antes de dar erro.
+    if (await exists()) return res.status(409).json({ error: 'slot_taken' });
     return res.status(500).json({ error: 'reserve_failed' });
   }
 }
