@@ -329,7 +329,49 @@
     var renderToken = 0;
     var coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 
+    /* ---- Modo demonstração (ex.: /ab): agenda simulada + confirmação por WhatsApp ---- */
+    var WA = String(window.EC_WHATSAPP_BOOKING || '').replace(/\D/g, '') || null;
+    var WA_STORE = 'ec_wa_taken';
+    var WA_SLOT_TIMES = ['09:00', '09:45', '10:30', '11:15', '12:00', '12:45', '13:30', '14:15', '15:00', '15:45', '16:30', '17:15'];
+
+    function takenMap() {
+      try { return JSON.parse(localStorage.getItem(WA_STORE)) || {}; } catch (e) { return {}; }
+    }
+
+    function markTaken(dateStr, time) {
+      var map = takenMap();
+      var todayStr = iso(today);
+      Object.keys(map).forEach(function (k) { if (k < todayStr) delete map[k]; });
+      map[dateStr] = (map[dateStr] || []).concat([time]);
+      try { localStorage.setItem(WA_STORE, JSON.stringify(map)); } catch (e) {}
+      delete cache[dateStr];
+    }
+
+    function hash32(str) {
+      var h = 2166136261;
+      for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return h >>> 0;
+    }
+
+    // Vagas simuladas: estáveis para cada dia, menos as já escolhidas neste dispositivo.
+    function simSlots(dateStr) {
+      var busy = takenMap()[dateStr] || [];
+      var nowMinutes = null;
+      if (dateStr === iso(today)) {
+        var ms = Date.now();
+        var lisbon = new Date(ms + tzOffsetMs(ms));
+        nowMinutes = lisbon.getUTCHours() * 60 + lisbon.getUTCMinutes() + 120; // 2 h de antecedência
+      }
+      return WA_SLOT_TIMES.filter(function (t) {
+        if (busy.indexOf(t) !== -1) return false;
+        var p = t.split(':');
+        if (nowMinutes !== null && (+p[0] * 60 + +p[1]) < nowMinutes) return false;
+        return hash32(dateStr + '#' + t) % 100 < 55;
+      }).map(function (t) { return { start: t }; });
+    }
+
     function getSlots(dateStr) {
+      if (WA) return Promise.resolve(simSlots(dateStr));
       if (!cache[dateStr]) {
         cache[dateStr] = fetch('/api/availability?date=' + encodeURIComponent(dateStr))
           .then(function (r) { if (!r.ok) throw new Error('http_' + r.status); return r.json(); })
@@ -559,10 +601,28 @@
       errorEl.hidden = true;
 
       var name = $('#bkName').value.trim();
+      if (name.length < 2) { showError('Introduza o seu nome.'); return; }
+
+      if (WA) {
+        var waText = 'Olá! Sou ' + name + '. Gostaria de confirmar a demonstração de ' +
+          state.dateLabel + ', às ' + state.time + ' (hora de Lisboa).';
+        var waUrl = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(waText);
+        var waWin = window.open(waUrl, '_blank', 'noopener');
+        if (!waWin) window.location.href = waUrl;
+        markTaken(state.date, state.time);
+        var waLink = $('#bookingWaLink');
+        if (waLink) waLink.href = waUrl;
+        form.hidden = true;
+        setStep(3);
+        successText.textContent = state.dateLabel + ', às ' + state.time + ' (hora de Lisboa)' +
+          (state.local ? ' — ' + state.local + ' na sua hora local' : '') + '.';
+        successEl.hidden = false;
+        pulse();
+        return;
+      }
+
       var email = $('#bkEmail').value.trim();
       var phone = $('#bkPhone').value.trim().replace(/[\s-]/g, '');
-
-      if (name.length < 2) { showError('Introduza o seu nome.'); return; }
       if (!EMAIL_RE.test(email)) { showError('Introduza um email válido.'); return; }
       if (!PHONE_RE.test(phone)) { showError('Introduza um telefone válido, com indicativo do país (ex: +351912345678).'); return; }
 

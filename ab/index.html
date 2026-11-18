@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-PT" class="is-intro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eleven Code | Transformamos conversas em vendas</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="CRM com todos os canais num só lugar, automações para vender mais e o controlo da operação nas suas mãos. Agende uma demonstração com a Eleven Code.">
+<link rel="canonical" href="https://www.elevencode.eu/ab">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.elevencode.eu/ab">
+<meta property="og:title" content="Eleven Code | Transformamos conversas em vendas">
+<meta property="og:description" content="CRM, automações e IA para vender mais. Agende uma demonstração.">
+<meta property="og:image" content="https://www.elevencode.eu/Ativo-6_2x-1.webp">
+<meta name="theme-color" content="#070C0F">
+<link rel="icon" href="/Ativo-6_2x-1.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<script>
+  (function () {
+    var root = document.documentElement;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var force = /[?&]intro=1/.test(window.location.search);
+    var skipIntro = /[?&]intro=0/.test(window.location.search);
+    var seen = false;
+    try { seen = sessionStorage.getItem('ec_intro_seen') === '1'; } catch (e) {}
+
+    function quick() {
+      root.classList.remove('is-intro', 'is-leaving');
+      root.classList.add('is-quick', 'is-dark');
+      var main = document.getElementById('main');
+      if (main) main.inert = false;
+    }
+
+    if (reduce || skipIntro || (seen && !force)) quick();
+    // Se a animação não arrancar a tempo (rede lenta ou bloqueada), mostra logo a página.
+    setTimeout(function () { if (!window.__ecIntroStarted && root.classList.contains('is-intro')) quick(); }, 4000);
+    // Último recurso: nunca mais de 20 s de intro com a página visível.
+    var visibleMs = 0;
+    var last = Date.now();
+    var guard = setInterval(function () {
+      var now = Date.now();
+      if (!document.hidden) visibleMs += now - last;
+      last = now;
+      if (!root.classList.contains('is-intro')) { clearInterval(guard); return; }
+      if (visibleMs > 20000) { clearInterval(guard); quick(); }
+    }, 1000);
+  })();
+</script>
+<script>window.EC_WHATSAPP_BOOKING = "+351939383433";</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="/scene.js" defer></script>
+<script src="/script.js" defer></script>
+</head>
+<body>
+
+<!-- CENA: as duas mãos (WebGL) -->
+<canvas class="scene" id="scene" aria-hidden="true"></canvas>
+<div class="fx" aria-hidden="true">
+  <div class="fx__labels" id="labels"></div>
+  <div class="fx__ripple" id="ripple"></div>
+  <div class="fx__spark" id="spark"></div>
+</div>
+<div class="shade" aria-hidden="true"></div>
+
+<!-- INTRO -->
+<div class="intro" id="intro">
+  <p class="intro__hud" aria-hidden="true"><span class="intro__hud-dot"></span>ELEVEN CODE · CRM &amp; IA</p>
+  <div class="intro__bubbles" id="bubbles" aria-hidden="true"></div>
+  <div class="ihead" aria-hidden="true">
+    <p class="ih">Pessoas <em>conversam.</em></p>
+    <p class="ih">A tecnologia <em>conecta.</em></p>
+    <p class="ih ih--final">Transformamos conversas <em>em vendas.</em></p>
+  </div>
+  <div class="intro__progress" aria-hidden="true"><span id="introBar"></span></div>
+  <button class="intro__skip" id="introSkip" type="button">Saltar intro</button>
+</div>
+
+<!-- TOPO -->
+<header class="top reveal-in" style="--d: .1s">
+  <a href="/ab" class="top__brand" aria-label="Eleven Code">
+    <img src="/Ativo-3_2x-1.webp" alt="Eleven Code" width="140" height="31">
+  </a>
+  <a class="top__wa" href="https://wa.me/351939383433?text=Ol%C3%A1!%20Vi%20o%20site%20e%20gostaria%20de%20agendar%20uma%20demonstra%C3%A7%C3%A3o." target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5.1-1.3A10 10 0 1012 2zm0 18.2a8.2 8.2 0 01-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.7.8-.8.9-.1.2-.3.2-.6.1-.2-.1-1-.4-2-1.2-.7-.6-1.2-1.4-1.4-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.2-.4.1-.2 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9 0 1.1.8 2.2.9 2.4.1.2 1.6 2.5 3.9 3.4.5.2.9.4 1.3.5.5.2 1 .1 1.3.1.4-.1 1.2-.5 1.4-1 .2-.5.2-.9.1-1z"/></svg>
+    WhatsApp
+  </a>
+</header>
+
+<main class="stage" id="main">
+
+  <!-- MOTE -->
+  <section class="pitch">
+    <p class="tag reveal-in" style="--d: .2s"><span class="tag__dot"></span>CRM · Automações · IA</p>
+    <h1 class="pitch__title reveal-in" style="--d: .25s" aria-label="Transformamos conversas em vendas.">
+      <span data-scramble aria-hidden="true">Transformamos conversas</span>
+      <em class="accent" aria-hidden="true">em vendas.</em>
+    </h1>
+    <p class="pitch__sub reveal-in" style="--d: .4s">Todos os canais da sua empresa num só lugar, automações para vender mais e o controlo da operação nas suas mãos.</p>
+  </section>
+
+  <!-- CANAIS → CRM → VENDA -->
+  <div class="flow reveal-in" style="--d: .55s" aria-hidden="true">
+    <div class="flow__row">
+      <div class="flow__channels" id="flowChannels"></div>
+      <div class="flow__link"><span class="flow__pulse"></span></div>
+      <div class="flow__hub">
+        <svg viewBox="0 0 200 256" width="14" height="18" fill="currentColor"><path d="M168 17 H47 A30 30 0 0 0 17 47 V209 A30 30 0 0 0 47 239 H178" fill="none" stroke="currentColor" stroke-width="30" stroke-linecap="round"/><rect x="58" y="58" width="122" height="28" rx="14"/><rect x="58" y="114" width="56" height="28" rx="14"/><rect x="58" y="170" width="122" height="28" rx="14"/></svg>
+        CRM
+      </div>
+      <div class="flow__link flow__link--late"><span class="flow__pulse"></span></div>
+      <div class="flow__win">Venda ✓</div>
+    </div>
+    <p class="flow__also">+ Sites e landing pages que convertem.</p>
+  </div>
+
+  <!-- AGENDAMENTO -->
+  <section class="card" id="booking" aria-labelledby="bookingTitle">
+    <div class="card__head" id="bookingHead">
+      <div class="card__top">
+        <span class="card__step" id="bookingStepLabel">Passo 1 de 2</span>
+        <span class="card__live"><span class="card__live-dot"></span>Confirmação por WhatsApp</span>
+      </div>
+      <h2 class="card__title" id="bookingTitle">Agende uma demonstração</h2>
+      <p class="card__meta"><span>45 min</span><span>Hora de Lisboa</span></p>
+    </div>
+
+    <div class="booking__panel" id="bookingStep1">
+      <div class="week">
+        <button type="button" class="week__nav" id="weekPrev" aria-label="Semana anterior">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <div class="week__label" aria-live="polite">
+          <strong id="weekTitle">Esta semana</strong>
+          <span id="weekRange"></span>
+        </div>
+        <button type="button" class="week__nav" id="weekNext" aria-label="Semana seguinte">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+
+      <div class="days" id="bookingDays" role="group" aria-label="Dias da semana"></div>
+
+      <p class="notice" id="bookingNotice" role="alert" hidden></p>
+
+      <div class="slots" id="bookingSlots" aria-live="polite"></div>
+
+      <p class="tz-note" id="tzNote" hidden>Horários em hora de Lisboa · por baixo, a sua hora local.</p>
+    </div>
+
+    <form class="form" id="bookingForm" novalidate hidden>
+      <button type="button" class="form__back" id="bookingBack">&larr; Escolher outro horário</button>
+      <div class="form__summary" id="bookingSummary"></div>
+
+      <div class="field">
+        <label for="bkName">Nome</label>
+        <input type="text" id="bkName" name="name" required autocomplete="name" placeholder="O seu nome">
+        <span class="field__hint">Ao confirmar, abrimos o WhatsApp com a sua marcação já escrita. Basta enviar.</span>
+      </div>
+
+      <p class="form__error" id="bookingError" role="alert" hidden></p>
+
+      <button type="submit" class="btn" id="bookingSubmit">Confirmar no WhatsApp</button>
+    </form>
+
+    <div class="success" id="bookingSuccess" hidden>
+      <svg class="success__check" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="29" fill="none" stroke="currentColor" stroke-width="3" pathLength="1"/>
+        <path d="M20 33 l8 8 l16 -18" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/>
+      </svg>
+      <h3>Horário reservado!</h3>
+      <p id="bookingSuccessText"></p>
+      <p class="success__note">Falta só enviar a mensagem no WhatsApp para a marcação ficar confirmada.<br>
+        <a class="link" id="bookingWaLink" href="https://wa.me/351939383433" target="_blank" rel="noopener">Reabrir o WhatsApp</a></p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot reveal-in" style="--d: .7s">
+  <span>© 2026 Eleven Code</span>
+  <a href="/ab?intro=1" class="foot__replay">↻ Rever intro</a>
+</footer>
+
+</body>
+</html>
