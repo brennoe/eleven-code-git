@@ -370,13 +370,19 @@
       }).map(function (t) { return { start: t }; });
     }
 
+    var AVAIL_URL = WA ? '/api/ab-slots' : '/api/availability';
+
     function getSlots(dateStr) {
-      if (WA) return Promise.resolve(simSlots(dateStr));
       if (!cache[dateStr]) {
-        cache[dateStr] = fetch('/api/availability?date=' + encodeURIComponent(dateStr))
+        cache[dateStr] = fetch(AVAIL_URL + '?date=' + encodeURIComponent(dateStr))
           .then(function (r) { if (!r.ok) throw new Error('http_' + r.status); return r.json(); })
           .then(function (data) { return data.slots || []; })
-          .catch(function (err) { delete cache[dateStr]; throw err; });
+          .catch(function (err) {
+            // Em modo demonstração, se o servidor falhar mostramos a agenda simulada.
+            if (WA) return simSlots(dateStr);
+            delete cache[dateStr];
+            throw err;
+          });
       }
       return cache[dateStr];
     }
@@ -607,17 +613,41 @@
         var waText = 'Olá! Sou ' + name + '. Gostaria de confirmar a demonstração de ' +
           state.dateLabel + ', às ' + state.time + ' (hora de Lisboa).';
         var waUrl = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(waText);
+        var waDate = state.date;
+        var waTime = state.time;
+
+        // O WhatsApp abre no próprio clique, para não ser travado pelo browser.
         var waWin = window.open(waUrl, '_blank', 'noopener');
-        if (!waWin) window.location.href = waUrl;
-        markTaken(state.date, state.time);
         var waLink = $('#bookingWaLink');
         if (waLink) waLink.href = waUrl;
+
+        markTaken(waDate, waTime);
         form.hidden = true;
         setStep(3);
-        successText.textContent = state.dateLabel + ', às ' + state.time + ' (hora de Lisboa)' +
+        successText.textContent = state.dateLabel + ', às ' + waTime + ' (hora de Lisboa)' +
           (state.local ? ' — ' + state.local + ' na sua hora local' : '') + '.';
         successEl.hidden = false;
         pulse();
+
+        // Reserva o horário no servidor: deixa de aparecer a todos os visitantes.
+        fetch(AVAIL_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: waDate, time: waTime })
+        }).then(function (r) {
+          if (r.status !== 409) return;
+          // Alguém reservou primeiro: volta ao passo 1 com aviso.
+          delete cache[waDate];
+          successEl.hidden = true;
+          step1.hidden = false;
+          setStep(1);
+          state.preferDate = waDate;
+          renderWeek();
+          noticeEl.textContent = 'Esse horário acabou de ser reservado por outra pessoa. Escolha outro, por favor.';
+          noticeEl.hidden = false;
+        }).catch(function () {});
+
+        if (!waWin) window.location.href = waUrl;
         return;
       }
 
